@@ -11,7 +11,7 @@ export default function FormValidation(
   }
 
   const validate = (inputs: { [key: string]: unknown }) => {
-    return new Promise<void>((reselove, reject) => {
+    return new Promise<void | boolean>((reselove, reject) => {
       const fields = []
       const errors: { name: string; errors: [] }[] = []
 

@@ -1,18 +1,20 @@
+import { ValidatorResolver } from "./validation"
+
 type CreateValidatorType = <T>(
   error: string,
-  resolver: (value?: unknown, options?: T) => boolean | Promise<void>
+  resolver: ValidatorResolver<T>
 ) => (
   message: string,
   options?: T
 ) => {
   error: string
   message: string
-  resolve: (value?: unknown) => boolean | Promise<void>
+  resolve: ValidatorResolver<T>
 }
 
 const createValidator: CreateValidatorType = function <T>(
   error: string,
-  resolver: (value?: unknown, options?: T) => boolean | Promise<void>
+  resolver: ValidatorResolver<T>
 ) {
   return function (message: string, options?: T) {
     return {
