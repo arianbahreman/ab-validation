@@ -1,0 +1,15 @@
+{
+  "name": "ab-validation",
+  "version": "1.0.0",
+  "description": "Lightweight validation",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npx tsup src/index.ts --minify --dts"
+  },
+  "author": "Arian Bahreman",
+  "license": "ISC",
+  "dependencies": {
+    "tsup": "^8.1.0",
+    "typescript": "^5.5.2"
+  }
+}
