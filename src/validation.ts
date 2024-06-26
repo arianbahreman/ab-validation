@@ -37,12 +37,12 @@ export default function Validation(
       (resolve, reject) => {
         Promise.all(resolved)
           .then(() => {
-            subscribers.forEach((subscriber) => subscriber({ status: "valid" }))
+            subscribers.forEach((subscriber) => subscriber({ valid: true }))
             resolve()
           })
           .catch((state) => {
             subscribers.forEach((subscriber) =>
-              subscriber({ status: "invalid", ...state })
+              subscriber({ valid: false, ...state })
             )
             reject(state)
           })

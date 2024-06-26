@@ -3,6 +3,7 @@ import Validation from "./validation"
 export default function FormValidation(
   validations: ReturnType<typeof Validation>[]
 ) {
+  const subscribers: CallableFunction[] = []
   const validationsMap = new Map()
 
   for (const validation of validations) {
@@ -26,10 +27,31 @@ export default function FormValidation(
           }
         })
 
-        errors.length > 0 ? reject(errors) : reselove()
+        const valid = errors.length === 0
+
+        subscribers.forEach((subscriber) =>
+          valid
+            ? subscriber({ valid: true })
+            : subscriber({ valid: false, errors })
+        )
+
+        valid ? reselove() : reject(errors)
       })
     })
   }
 
-  return { validate }
+  /**
+   * Subscribe
+   */
+  const subscribe = (callback: (result: any) => void) => {
+    subscribers.push(callback)
+    return function unsubscribe() {
+      const index = subscribers.indexOf(callback)
+      if (index !== -1) {
+        subscribers.splice(index, 1)
+      }
+    }
+  }
+
+  return { validate, subscribe }
 }
