@@ -71,14 +71,17 @@ unsubscribe()
 ```javascript
 import { Validation, createValidator } from "ab-validation"
 
-const CheckUsername = createValidator()
+const UsernameExists = createValidator(
+  "username-exists",
+  async (value: string) => {
+    const data = await fetch(`api/username/${value}`).then((response) =>
+      response.json()
+    )
 
-const { validate } = Validation("username", [Required("Name is required.")])
+    return !data.username
+  }
+)
 
-const unsubscribe = subscribe((state) => {
-  console.log(state)
-})
-
-validate("John")
-unsubscribe()
+const username = Validation("username", [UsernameExists("Username is exists.")])
+username.validate("arian")
 ```
