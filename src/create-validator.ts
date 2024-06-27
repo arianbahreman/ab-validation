@@ -1,4 +1,13 @@
-import { ValidatorResolver } from "./validation"
+export type ValidatorResolver<T> = (
+  value: any,
+  options?: T
+) => boolean | Promise<void | boolean>
+
+export type ValidatorSchema = {
+  error: string
+  message: string
+  resolve: ValidatorResolver<object>
+}
 
 type CreateValidatorType = <T>(
   error: string,
@@ -20,7 +29,7 @@ const createValidator: CreateValidatorType = function <T>(
     return {
       error,
       message,
-      resolve: (value?: unknown) => resolver(value, options),
+      resolve: (value) => resolver(value, options),
     }
   }
 }

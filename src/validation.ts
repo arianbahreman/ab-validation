@@ -1,13 +1,4 @@
-export type ValidatorResolver<T> = (
-  value: unknown,
-  options?: T
-) => boolean | Promise<void | boolean>
-
-export type ValidatorSchema = {
-  error: string
-  message: string
-  resolve: ValidatorResolver<object>
-}
+import { ValidatorSchema } from "./create-validator"
 
 export default function Validation(
   name: string,
