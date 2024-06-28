@@ -7,14 +7,27 @@ Lightweight, flexible and typesafe form validator.
 ```
 npm i ab-validation
 ```
-
+ 
 ## Import
 
 ```javascript
 import { Validation, FormValidation, createValidator } from "ab-validation"
 ```
 
-## Usage: Validate a single input
+## Validation
+Validate a single input.
+
+**Parameters:**  
+name: string  
+validators: ValidatorSchema[]
+
+**Return:**  
+{ validate, subscribe }
+
+validate: (value: unknown) => Promise<void | ValidationState>  
+subscribe: ((state: ValidationState) => void) => () => void
+
+### Sample Usage
 
 ```javascript
 import { Validation, Required } from "ab-validation"
@@ -28,7 +41,34 @@ name
 // { name: "name", error: "required", message: "Name is required" }
 ```
 
-## Usage: Validate a form
+### Subscribe to a Validation
+
+```javascript
+const { validate, subscribe } = Validation("name", [
+  Required("Name is required."),
+])
+
+const unsubscribe = subscribe((state) => {
+  console.log(state)
+})
+
+validate("John")
+unsubscribe()
+```
+
+## FormValidation
+Validate multiple inputs.
+
+**Parameters:**  
+validations: Validation[]
+
+**Return:**  
+{ validate, subscribe }
+
+validate: (value: unknown) => Promise<void | FormValidationState>  
+subscribe: ((state: FormValidationState) => void) => () => void
+
+### Sample Usage
 
 ```javascript
 import { FormValidation, Validation, Required, Email } from "ab-validation"
@@ -51,37 +91,47 @@ form
 // [{name: "email", error: "pattern", message: "Email is incorrect."}]
 ```
 
-## Usage: Subscribe to a validation
+## createValidator
+It's a higher order function to create a validator schema.
 
-```javascript
-const { validate, subscribe } = Validation("name", [
-  Required("Name is required."),
-])
+createValidator\<OptionsType\>(error, resolver)
 
-const unsubscribe = subscribe((state) => {
-  console.log(state)
-})
+**Parameters:**  
+error: string
+resolver: (value?: unknown, options?: object) => boolean | Promise<void | boolean>
 
-validate("John")
-unsubscribe()
-```
 
-## Async validator
+**Return:**  
+Validator-
+
+## Built-in Validators
+
+| Validator | Description | Options |
+|-----------|-------------|------------|
+| Required | Return true if value is not empty. |{}|
+| Text | Valid if the text's length is between minimum and maximum length.|{ minLength?: number, maxLength?: number }|
+|Email|Check if the value is a valid email address.|{}|
+|List|Valid if the list includes the value.|{ items: unknown[] }|
+|Pattern|Matchs RegEx pattern with the value|{ regex: RegExp }|
+
+### Async validator
 
 ```javascript
 import { Validation, createValidator } from "ab-validation"
 
-const UsernameExists = createValidator(
+interface UsernameExistsOptions {}
+
+const UsernameExists = createValidator<UsernameExistsOptions>(
   "username-exists",
   async (value: string) => {
-    const data = await fetch(`api/username/${value}`).then((response) =>
+    const data = await fetch(`api/user/${value}`).then((response) =>
       response.json()
     )
 
-    return !data.username
+    return !data.user
   }
 )
 
-const username = Validation("username", [UsernameExists("Username is exists.")])
+const username = Validation("username", [UsernameExists("Username already exists.")])
 username.validate("arian")
 ```
