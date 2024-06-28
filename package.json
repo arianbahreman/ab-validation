@@ -1,6 +1,6 @@
 {
   "name": "ab-validation",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Lightweight form validation",
   "main": "dist/index.js",
   "types": "dis/index.d.ts",
