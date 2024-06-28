@@ -1,14 +1,29 @@
 {
   "name": "ab-validation",
-  "version": "1.2.0",
+  "version": "1.2.1",
+  "author": "Arian Bahreman",
+  "homepage": "https://github.com/arianbahreman/ab-validation#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arianbahreman/ab-validation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arianbahreman/ab-validation/issues"
+  },
+  "keywords": [
+    "form",
+    "validation",
+    "validator",
+    "async",
+    "javascript"
+  ],
+  "license": "ISC",
   "description": "Lightweight form validation",
   "main": "dist/index.js",
   "types": "dis/index.d.ts",
   "scripts": {
     "build": "npx tsup src/index.ts --minify --dts"
   },
-  "author": "Arian Bahreman",
-  "license": "ISC",
   "devDependencies": {
     "tsup": "^8.1.0",
     "typescript": "^5.5.2"
