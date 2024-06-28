@@ -1,5 +1,5 @@
 export type ValidatorResolver<T> = (
-  value: any,
+  value?: any,
   options?: T
 ) => boolean | Promise<void | boolean>
 
