@@ -17,26 +17,28 @@ export default function FormValidation(
 
       for (const name in inputs) {
         const validation = validationsMap.get(name)
-        fields.push(validation.validate(inputs[name]))
+        validation && fields.push(validation.validate(inputs[name]))
       }
 
-      Promise.allSettled(fields).then((result) => {
-        result.forEach((field) => {
-          if (field.status === "rejected") {
-            errors.push(field.reason)
-          }
+      Promise.allSettled(fields)
+        .then((result) => {
+          result.forEach((field) => {
+            if (field.status === "rejected") {
+              errors.push(field.reason)
+            }
+          })
+
+          const valid = errors.length === 0
+
+          subscribers.forEach((subscriber) =>
+            valid
+              ? subscriber({ valid: true })
+              : subscriber({ valid: false, errors })
+          )
+
+          valid ? reselove() : reject(errors)
         })
-
-        const valid = errors.length === 0
-
-        subscribers.forEach((subscriber) =>
-          valid
-            ? subscriber({ valid: true })
-            : subscriber({ valid: false, errors })
-        )
-
-        valid ? reselove() : reject(errors)
-      })
+        .catch(() => {})
     })
   }
 
