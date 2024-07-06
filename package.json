@@ -1,6 +1,7 @@
 {
   "name": "ab-validation",
-  "version": "1.2.1",
+  "version": "1.2.2",
+  "description": "Lightweight form validation",
   "author": "Arian Bahreman",
   "homepage": "https://github.com/arianbahreman/ab-validation#readme",
   "repository": {
@@ -17,8 +18,9 @@
     "async",
     "javascript"
   ],
-  "license": "ISC",
-  "description": "Lightweight form validation",
+  "files": [
+    "dis/**/*"
+  ],
   "main": "dist/index.js",
   "types": "dis/index.d.ts",
   "scripts": {
@@ -27,5 +29,6 @@
   "devDependencies": {
     "tsup": "^8.1.0",
     "typescript": "^5.5.2"
-  }
+  },
+  "license": "ISC"
 }
