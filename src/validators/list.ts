@@ -1,11 +1,11 @@
-import createValidator from "../create-validator"
+import createValidator from "../create-validator";
 
 interface ListOptions {
-  items: unknown[]
+  items: unknown[];
 }
 
 const List = createValidator<ListOptions>("list", (value, options) => {
-  return options ? options?.items.includes(value) : false
-})
+  return options ? options?.items.includes(value) : false;
+});
 
-export default List
+export default List;

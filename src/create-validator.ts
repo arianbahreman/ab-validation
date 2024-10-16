@@ -1,13 +1,13 @@
 export type ValidatorResolver<T> = (
   value?: any,
   options?: T
-) => boolean | Promise<void | boolean>
+) => boolean | Promise<void | boolean>;
 
 export type ValidatorSchema = {
-  error: string
-  message: string
-  resolve: ValidatorResolver<object>
-}
+  error: string;
+  message: string;
+  resolve: ValidatorResolver<object>;
+};
 
 type CreateValidatorType = <T>(
   error: string,
@@ -16,10 +16,10 @@ type CreateValidatorType = <T>(
   message: string,
   options?: T
 ) => {
-  error: string
-  message: string
-  resolve: ValidatorResolver<T>
-}
+  error: string;
+  message: string;
+  resolve: ValidatorResolver<T>;
+};
 
 const createValidator: CreateValidatorType = function <T>(
   error: string,
@@ -30,8 +30,8 @@ const createValidator: CreateValidatorType = function <T>(
       error,
       message,
       resolve: (value) => resolver(value, options),
-    }
-  }
-}
+    };
+  };
+};
 
-export default createValidator
+export default createValidator;
