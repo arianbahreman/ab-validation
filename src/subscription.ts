@@ -1,4 +1,4 @@
-export default function subscriber() {
+export default function subscription() {
   const subscribers: CallableFunction[] = [];
   /**
    * Subscribe
