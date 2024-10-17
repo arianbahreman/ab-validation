@@ -1,61 +1,69 @@
-import { ValidatorSchema } from "./create-validator"
+import type { Validator } from "./create-validator";
+import subscriber from "./subscriber";
 
-export default function Validation(
-  name: string,
-  validators: ValidatorSchema[]
-) {
-  const subscribers: CallableFunction[] = []
-
+/**
+ * Creates a validation object for a field.
+ *
+ * @param name - The field name.
+ * @param validators - An array of validators, each with `error`, `message`, and a `resolve` function.
+ * @returns An object
+ */
+export default function Validation(name: string, validators: Validator[]) {
+  const { subscribe, dispatch } = subscriber();
   /**
-   * Validate
+   * Validates a given value against a list of validators.
+   *
+   * Each validator has an `error`, a `message`, and a `resolve` method.
+   * The `resolve` method may return either a boolean (synchronous validation)
+   * or a Promise<boolean> (asynchronous validation).
+   *
+   * The method maps through the validators and creates a Promise for each,
+   * which resolves when the validation passes or rejects with the status
+   * (including the `name`, `error`, and `message`) if validation fails.
+   *
+   * @param value - The value to be validated. Can be of any type.
+   * @returns A Promise that resolves if all validators pass, or rejects if
+   *          any validator fails. Rejection includes an object with the
+   *          `name`, `error`, and `message` from the failing validator.
    */
-  const validate = (value: unknown) => {
+  const validate = (value: unknown, fields?: object) => {
     const resolved = validators.map(
-      (validator: ValidatorSchema) =>
-        new Promise<void>(async (resolve, reject) => {
-          const valid = validator.resolve(value)
-          const state = {
+      (validator) =>
+        new Promise<void>((resolve, reject) => {
+          const result = validator.resolve(value, fields);
+          const response = {
             name,
             error: validator.error,
             message: validator.message,
-          }
-          if (valid instanceof Promise) {
-            valid.then(() => resolve()).catch(() => reject(state))
+          };
+
+          /**
+           * Result might be a Promise returned by an async resolver
+           */
+          if (result instanceof Promise) {
+            result.then(() => resolve()).catch(() => reject(response));
+            /**
+             * Sync result should be a boolean
+             */
           } else {
-            valid ? resolve() : reject(state)
+            result ? resolve() : reject(response);
           }
         })
-    )
+    );
 
-    return new Promise<{ name: string; errors?: [] } | void>(
-      (resolve, reject) => {
-        Promise.all(resolved)
-          .then(() => {
-            subscribers.forEach((subscriber) => subscriber({ valid: true }))
-            resolve()
-          })
-          .catch((state) => {
-            subscribers.forEach((subscriber) =>
-              subscriber({ valid: false, ...state })
-            )
-            reject(state)
-          })
-      }
-    )
-  }
+    return new Promise<void>((resolve, reject) => {
+      Promise.all(resolved)
+        .then(() => {
+          dispatch({ status: "valid" });
+          resolve();
+        })
+        .catch((response) => {
+          const state = { status: "invalid", ...response };
+          dispatch(state);
+          reject(state);
+        });
+    });
+  };
 
-  /**
-   * Subscribe
-   */
-  const subscribe = (callback: (result: any) => void) => {
-    subscribers.push(callback)
-    return function unsubscribe() {
-      const index = subscribers.indexOf(callback)
-      if (index !== -1) {
-        subscribers.splice(index, 1)
-      }
-    }
-  }
-
-  return { name, validate, subscribe }
+  return { name, validate, subscribe };
 }
