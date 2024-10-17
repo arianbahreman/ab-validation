@@ -66,8 +66,9 @@ export default function FormValidation(
             dispatch({ status: "valid" });
             resolve();
           } else {
-            dispatch({ status: "invalid", errors });
-            reject(errors);
+            const state = { status: "invalid", errors };
+            dispatch(state);
+            reject(state);
           }
         })
         .catch(() => {});
