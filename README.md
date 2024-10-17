@@ -7,19 +7,20 @@ Lightweight, flexible and typesafe form validator.
 ```
 npm i ab-validation
 ```
- 
+
 ## Import
 
 ```javascript
-import { Validation, FormValidation, createValidator } from "ab-validation"
+import { Validation, FormValidation, createValidator } from "ab-validation";
 ```
 
 ## Validation
+
 Validate a single input.
 
 **Parameters:**  
-name: string  
-validators: ValidatorSchema[]
+name: string
+validators: Validator[]
 
 **Return:**  
 { validate, subscribe }
@@ -27,17 +28,17 @@ validators: ValidatorSchema[]
 validate: (value: unknown) => Promise<void | ValidationState>  
 subscribe: ((state: ValidationState) => void) => () => void
 
-### Sample Usage
+### Example
 
 ```javascript
-import { Validation, Required } from "ab-validation"
+import { Validation, Required } from "ab-validation";
 
-const name = Validation("name", [Require("Name is required")])
+const name = Validation("name", [Require("Name is required")]);
 
 name
-  .validate("John")
-  .then(() => console.log("Valid"))
-  .catch((result) => console.log(result))
+  .validate("")
+  .then(() => console.log("valid"))
+  .catch((result) => console.log(result));
 // { name: "name", error: "required", message: "Name is required" }
 ```
 
@@ -46,17 +47,18 @@ name
 ```javascript
 const { validate, subscribe } = Validation("name", [
   Required("Name is required."),
-])
+]);
 
 const unsubscribe = subscribe((state) => {
-  console.log(state)
-})
+  console.log(state);
+});
 
-validate("John")
-unsubscribe()
+validate("John").catch(() => {});
+unsubscribe();
 ```
 
 ## FormValidation
+
 Validate multiple inputs.
 
 **Parameters:**  
@@ -68,10 +70,11 @@ validations: Validation[]
 validate: (value: unknown) => Promise<void | FormValidationState>  
 subscribe: ((state: FormValidationState) => void) => () => void
 
-### Sample Usage
+### Example
 
 ```javascript
-import { FormValidation, Validation, Required, Email } from "ab-validation"
+import { FormValidation, Validation } from "ab-validation";
+import { Required, Email } from "ab-validation/validators";
 
 const form = FormValidation([
   Validation("name", [Required("Please enter the name.")]),
@@ -79,59 +82,75 @@ const form = FormValidation([
     Required("Please enter the email."),
     Email("Email is incorrect."),
   ]),
-])
+]);
 
 form
   .validate({
     name: "John",
     email: "john@gmail",
   })
-  .then(() => console.log("Valid"))
-  .catch((result) => console.log(result))
-// [{name: "email", error: "pattern", message: "Email is incorrect."}]
+  .then(() => console.log("valid"))
+  .catch((state) => console.log(state.errors));
+// [{name: "email", error: "email", message: "Email is incorrect."}]
 ```
 
 ## createValidator
-It's a higher order function to create a validator schema.
+
+It's a higher order function to create a validator.
 
 createValidator\<OptionsType\>(error, resolver)
 
 **Parameters:**  
 error: string
-resolver: (value?: unknown, options?: object) => boolean | Promise<void | boolean>
-
+resolver: (value?: unknown, options?: object, fields?: object) => boolean | Promise<void | boolean>
 
 **Return:**  
-Validator-
+Validator
 
 ## Built-in Validators
 
-| Validator | Description | Options |
-|-----------|-------------|------------|
-| Required | Return true if value is not empty. |{}|
-| Text | Valid if the text's length is between minimum and maximum length.|{ minLength?: number, maxLength?: number }|
-|Email|Check if the value is a valid email address.|{}|
-|List|Valid if the list includes the value.|{ items: unknown[] }|
-|Pattern|Matchs RegEx pattern with the value|{ regex: RegExp }|
+| Validator | Description                                                       | Options                                    |
+| --------- | ----------------------------------------------------------------- | ------------------------------------------ |
+| Required  | Return true if value is not empty.                                | {}                                         |
+| Text      | Valid if the text's length is between minimum and maximum length. | { minLength?: number, maxLength?: number } |
+| Email     | Check if the value is a valid email address.                      | {}                                         |
+| List      | Valid if the list includes the value.                             | { items: unknown[] }                       |
+| Pattern   | Matchs RegEx pattern with the value                               | { regex: RegExp }                          |
 
-### Async validator
+### Access form fields from resolver
+
+In some cases, you might need to access other values from the form. For example, when validating a password confirmation, you may need to know the value of the password.
 
 ```javascript
-import { Validation, createValidator } from "ab-validation"
+const ConfirmPassword = createValidator(
+  "confirm-password",
+  (value, options, fields) => {
+    return value === fields?.password;
+  }
+);
+```
+
+### Custom and async Validator
+
+```javascript
+import { Validation, createValidator } from "ab-validation";
 
 interface UsernameExistsOptions {}
 
-const UsernameExists = createValidator<UsernameExistsOptions>(
-  "username-exists",
+const UsernameExists =
+  createValidator <
+  UsernameExistsOptions >
+  ("username-exists",
   async (value: string) => {
     const data = await fetch(`api/user/${value}`).then((response) =>
       response.json()
-    )
+    );
 
-    return !data.user
-  }
-)
+    return !data.user;
+  });
 
-const username = Validation("username", [UsernameExists("Username already exists.")])
-username.validate("arian")
+const username = Validation("username", [
+  UsernameExists("Username already exists."),
+]);
+username.validate("arian");
 ```

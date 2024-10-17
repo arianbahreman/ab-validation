@@ -1,6 +1,6 @@
 {
   "name": "ab-validation",
-  "version": "2.0",
+  "version": "2.0.1",
   "description": "Lightweight form validation",
   "author": "Arian Bahreman",
   "homepage": "https://github.com/arianbahreman/ab-validation#readme",
@@ -19,7 +19,7 @@
     "javascript"
   ],
   "files": [
-    "dis/**/*"
+    "dist/**/*"
   ],
   "main": "dist/index.js",
   "types": "dis/index.d.ts",
