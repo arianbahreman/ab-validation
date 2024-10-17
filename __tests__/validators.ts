@@ -1,4 +1,8 @@
-import { Email, List, Pattern, Required, Text } from "../src";
+import Email from "../src/validators/email";
+import List from "../src/validators/list";
+import Pattern from "../src/validators/pattern";
+import Required from "../src/validators/required";
+import Text from "../src/validators/text";
 
 test("required", () => {
   expect(Required("").resolve("")).toBe(false);
