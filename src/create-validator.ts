@@ -1,35 +1,24 @@
-export type ValidatorResolver<T> = (
-  value?: any,
-  options?: T
-) => boolean | Promise<void | boolean>;
-
-export type ValidatorSchema = {
+export type Validator = {
   error: string;
   message: string;
-  resolve: ValidatorResolver<object>;
+  resolve: (value: unknown, fields?: object) => Promise<boolean> | boolean;
 };
 
-type CreateValidatorType = <T>(
+type CreateValidator = <T extends object>(
   error: string,
-  resolver: ValidatorResolver<T>
-) => (
-  message: string,
-  options?: T
-) => {
-  error: string;
-  message: string;
-  resolve: ValidatorResolver<T>;
-};
+  resolver: (
+    value: unknown,
+    options?: T,
+    fields?: object
+  ) => Promise<boolean> | boolean
+) => (message: string, options?: T) => Validator;
 
-const createValidator: CreateValidatorType = function <T>(
-  error: string,
-  resolver: ValidatorResolver<T>
-) {
-  return function (message: string, options?: T) {
+const createValidator: CreateValidator = function (error, resolver) {
+  return function (message, options?) {
     return {
       error,
       message,
-      resolve: (value) => resolver(value, options),
+      resolve: (value, fields?) => resolver(value, options, fields),
     };
   };
 };
