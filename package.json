@@ -24,7 +24,7 @@
   "main": "dist/index.js",
   "types": "dis/index.d.ts",
   "scripts": {
-    "build": "npx tsup src/index.ts --minify --dts"
+    "build": "npx jest && npx tsup src/index.ts --minify --dts"
   },
   "devDependencies": {
     "tsup": "^8.1.0",
