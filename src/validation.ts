@@ -1,5 +1,5 @@
 import type { Validator } from "./create-validator";
-import subscriber from "./subscriber";
+import subscription from "./subscription";
 
 /**
  * Creates a validation object for a field.
@@ -9,7 +9,7 @@ import subscriber from "./subscriber";
  * @returns An object
  */
 export default function Validation(name: string, validators: Validator[]) {
-  const { subscribe, dispatch } = subscriber();
+  const { subscribe, dispatch } = subscription();
   /**
    * Validates a given value against a list of validators.
    *
