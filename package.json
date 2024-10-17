@@ -1,6 +1,6 @@
 {
   "name": "ab-validation",
-  "version": "1.2.4",
+  "version": "2.0",
   "description": "Lightweight form validation",
   "author": "Arian Bahreman",
   "homepage": "https://github.com/arianbahreman/ab-validation#readme",
@@ -23,8 +23,21 @@
   ],
   "main": "dist/index.js",
   "types": "dis/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./validators": {
+      "types": "./dist/validators.d.ts",
+      "default": "./dist/validators.js"
+    }
+  },
   "scripts": {
-    "build": "npx jest && npx tsup src/index.ts --minify --dts"
+    "build": "npm run build-validation && npm run build-validators",
+    "build-validators": "npx jest && npx tsup src/validators/validators.ts --minify --dts",
+    "build-validation": "npx tsup src/index.ts --minify --dts",
+    "publish": "npm publish"
   },
   "devDependencies": {
     "tsup": "^8.1.0",
