@@ -10,6 +10,7 @@ import type { Validator } from "./create-validator";
  */
 export default function Validation(name: string, validators: Validator[]) {
   const { subscribe, dispatch } = subscription();
+  const cache = new Map();
   /**
    * Validates a given value against a list of validators.
    *
@@ -27,6 +28,9 @@ export default function Validation(name: string, validators: Validator[]) {
    *          `name`, `error`, and `message` from the failing validator.
    */
   const validate = (value: unknown, fields?: object) => {
+    const key = { value, fields };
+    if (cache.has(key)) return cache.get(key);
+
     const resolved = validators.map(
       (validator) =>
         new Promise<void>((resolve, reject) => {
@@ -51,7 +55,7 @@ export default function Validation(name: string, validators: Validator[]) {
         })
     );
 
-    return new Promise<void>((resolve, reject) => {
+    const validated = new Promise<void>((resolve, reject) => {
       Promise.all(resolved)
         .then(() => {
           dispatch({ status: "valid" });
@@ -63,6 +67,10 @@ export default function Validation(name: string, validators: Validator[]) {
           reject(state);
         });
     });
+
+    cache.set(key, validated);
+
+    return validated;
   };
 
   return { name, validate, subscribe };
