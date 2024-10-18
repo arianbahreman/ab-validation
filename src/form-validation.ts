@@ -1,4 +1,4 @@
-import subscription from "./subscription";
+import subscription from "ab-subscription";
 import Validation from "./validation";
 
 /**

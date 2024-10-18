@@ -1,5 +1,5 @@
+import subscription from "ab-subscription";
 import type { Validator } from "./create-validator";
-import subscription from "./subscription";
 
 /**
  * Creates a validation object for a field.
