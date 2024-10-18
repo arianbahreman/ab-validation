@@ -1,10 +1,18 @@
 # Validation
 
-Lightweight, flexible and typesafe form validator.
+A lightweight, flexible, and fully type-safe form validation library. It simplifies input validation for both single fields and complex forms, providing a structured approach to handle errors, asynchronous checks, and subscriptions to validation states. With built-in validators and the ability to create custom ones.
+
+## Features
+
+- **Lightweight and Performant:** Designed to be easy to use without adding unnecessary overhead.
+- **Type-Safe:** Full TypeScript support ensures safety and better developer experience.
+- **Flexible:** Use built-in validators or create custom ones to suit your specific needs.
+- **Asynchronous Validation:** Supports async checks like API calls for user existence or other server-side validations.
+- **Reactive Subscriptions:** Reactively subscribe to validation state changes, perfect for dynamic UI updates in real-time.
 
 ## Install
 
-```
+```bash
 npm i ab-validation
 ```
 
@@ -12,6 +20,7 @@ npm i ab-validation
 
 ```javascript
 import { Validation, FormValidation, createValidator } from "ab-validation";
+import { Required, Text, Email, List, Pattern } from "ab-validation/validators";
 ```
 
 ## Validation
@@ -39,7 +48,7 @@ name
   .validate("")
   .then(() => console.log("valid"))
   .catch((result) => console.log(result));
-// { name: "name", error: "required", message: "Name is required" }
+// { status: "invalid", name: "name", error: "required", message: "Name is required" }
 ```
 
 ### Subscribe to a Validation
@@ -91,7 +100,7 @@ form
   })
   .then(() => console.log("valid"))
   .catch((state) => console.log(state.errors));
-// [{name: "email", error: "email", message: "Email is incorrect."}]
+// { status: 'invalid', errors: [{name: "email", error: "email", message: "Email is incorrect."}] }
 ```
 
 ## createValidator
@@ -101,7 +110,7 @@ It's a higher order function to create a validator.
 createValidator\<OptionsType\>(error, resolver)
 
 **Parameters:**  
-error: string
+error: string  
 resolver: (value?: unknown, options?: object, fields?: object) => boolean | Promise<void | boolean>
 
 **Return:**  
@@ -117,7 +126,7 @@ Validator
 | List      | Valid if the list includes the value.                             | { items: unknown[] }                       |
 | Pattern   | Matchs RegEx pattern with the value                               | { regex: RegExp }                          |
 
-### Access form fields from resolver
+## Access form fields from resolver
 
 In some cases, you might need to access other values from the form. For example, when validating a password confirmation, you may need to know the value of the password.
 
@@ -130,7 +139,7 @@ const ConfirmPassword = createValidator(
 );
 ```
 
-### Custom and async Validator
+## Custom and async Validator
 
 ```javascript
 import { Validation, createValidator } from "ab-validation";
