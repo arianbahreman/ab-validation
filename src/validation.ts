@@ -26,7 +26,7 @@ export default function Validation(name: string, validators: Validator[]) {
    *          any validator fails. Rejection includes an object with the
    *          `name`, `error`, and `message` from the failing validator.
    */
-  const validate = (value: unknown, fields?: object) => {
+  const validate = (value: unknown, fields?: Record<string, unknown>) => {
     const resolved = validators.map(
       (validator) =>
         new Promise<void>((resolve, reject) => {
@@ -51,7 +51,7 @@ export default function Validation(name: string, validators: Validator[]) {
         })
     );
 
-    return new Promise<void>((resolve, reject) => {
+    const promise = new Promise<void>((resolve, reject) => {
       Promise.all(resolved)
         .then(() => {
           dispatch({ status: "valid" });
@@ -63,6 +63,9 @@ export default function Validation(name: string, validators: Validator[]) {
           reject(state);
         });
     });
+    promise.catch(() => {});
+
+    return promise;
   };
 
   return { name, validate, subscribe };
