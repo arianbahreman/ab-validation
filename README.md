@@ -9,6 +9,7 @@ A lightweight, flexible, and fully type-safe form validation library. It simplif
 - **Flexible:** Use built-in validators or create custom ones to suit your specific needs.
 - **Asynchronous Validation:** Supports async checks like API calls for user existence or other server-side validations.
 - **Reactive Subscriptions:** Reactively subscribe to validation state changes, perfect for dynamic UI updates in real-time.
+- **React Integration:** Built-in React hook for seamless form validation integration.
 
 ## Install
 
@@ -19,8 +20,12 @@ npm i ab-validation
 ## Import
 
 ```javascript
+// Core validation
 import { Validation, FormValidation, createValidator } from "ab-validation";
 import { Required, Text, Email, List, Pattern } from "ab-validation/validators";
+
+// React integration
+import { useFormValidation } from "ab-validation/react";
 ```
 
 ## Validation
@@ -54,9 +59,7 @@ name
 ### Subscribe to a Validation
 
 ```javascript
-const { validate, subscribe } = Validation("name", [
-  Required("Name is required."),
-]);
+const { validate, subscribe } = Validation("name", [Required("Name is required.")]);
 
 const unsubscribe = subscribe((state) => {
   console.log(state);
@@ -87,10 +90,7 @@ import { Required, Email } from "ab-validation/validators";
 
 const form = FormValidation([
   Validation("name", [Required("Please enter the name.")]),
-  Validation("email", [
-    Required("Please enter the email."),
-    Email("Email is incorrect."),
-  ]),
+  Validation("email", [Required("Please enter the email."), Email("Email is incorrect.")]),
 ]);
 
 form
@@ -131,12 +131,9 @@ Validator
 In some cases, you might need to access other values from the form. For example, when validating a password confirmation, you may need to know the value of the password.
 
 ```javascript
-const ConfirmPassword = createValidator(
-  "confirm-password",
-  (value, options, fields) => {
-    return value === fields?.password;
-  }
-);
+const ConfirmPassword = createValidator("confirm-password", (value, options, fields) => {
+  return value === fields?.password;
+});
 ```
 
 ## Custom and async Validator
@@ -151,15 +148,52 @@ const UsernameExists =
   UsernameExistsOptions >
   ("username-exists",
   async (value: string) => {
-    const data = await fetch(`api/user/${value}`).then((response) =>
-      response.json()
-    );
+    const data = await fetch(`api/user/${value}`).then((response) => response.json());
 
     return !data.user;
   });
 
-const username = Validation("username", [
-  UsernameExists("Username already exists."),
-]);
+const username = Validation("username", [UsernameExists("Username already exists.")]);
 username.validate("arian");
 ```
+
+## React Integration
+
+The library provides a custom hook for easy integration with React forms.
+
+### useValidation Hook
+
+```javascript
+import { useFormValidation } from "ab-validation/react";
+import { Required, Email } from "ab-validation/validators";
+
+function MyForm() {
+  const { validate, state, subscribe } = useFormValidation([
+    Validation("email", [Required("Email is required"), Email("Invalid email format")]),
+  ]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await validate({ email: e.target.email.value });
+      // Form is valid
+    } catch (errors) {
+      // Handle validation errors
+      console.log(errors);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input name="email" />
+      {state.errors?.email && <span>{state.errors.email.message}</span>}
+      <button type="submit">Submit</button>
+    </form>
+  );
+}
+```
+
+The `useFormValidation` hook provides:
+
+- `validate`: Function to validate form values
+- `state`: Current validation state
