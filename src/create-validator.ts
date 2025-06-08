@@ -1,7 +1,7 @@
 export type Validator = {
   error: string;
   message: string;
-  resolve: (value: unknown, fields?: object) => Promise<boolean> | boolean;
+  resolve: (value: unknown, fields?: Record<string, unknown>) => Promise<boolean> | boolean;
 };
 
 type CreateValidator = <T extends object>(
@@ -9,35 +9,31 @@ type CreateValidator = <T extends object>(
   resolver: (
     value: unknown,
     options?: T,
-    fields?: object
+    fields?: Record<string, unknown>
   ) => Promise<boolean> | boolean
 ) => (message: string, options?: T) => Validator;
 
 const validators = new Set<string>();
 
-const createValidator: CreateValidator = function <T extends object>(
+const createValidator: CreateValidator = <T extends object>(
   error: string,
   resolver: (
     value: unknown,
     options?: T,
-    fields?: object
+    fields?: Record<string, unknown>
   ) => Promise<boolean> | boolean
-) {
+) => {
   if (validators.has(error)) {
     throw new Error(`Validator with error "${error}" already exists.`);
   }
 
   validators.add(error);
 
-  return function (message: string, options?: T): Validator {
-    return {
-      error,
-      message,
-      resolve: (value, fields?) => {
-        return resolver(value, options, fields);
-      },
-    };
-  };
+  return (message: string, options?: T): Validator => ({
+    error,
+    message,
+    resolve: (value, fields) => resolver(value, options, fields),
+  });
 };
 
 export default createValidator;
