@@ -7,9 +7,7 @@ import Validation from "./validation";
  * @param validations - An array of validation objects for each field.
  * @returns An object with a `validate` method that checks all fields.
  */
-export default function FormValidation(
-  validations: ReturnType<typeof Validation>[]
-) {
+export default function FormValidation(validations: ReturnType<typeof Validation>[]) {
   const form = new Map<string, ReturnType<typeof Validation>>();
   const { subscribe, dispatch } = subscription();
 
@@ -55,24 +53,23 @@ export default function FormValidation(
      * Finally, if no errors are found, the validation resolves, otherwise it rejects with the
      * collected errors.
      */
-    return new Promise<void>((resolve, reject) => {
-      Promise.allSettled(resolved)
-        .then((result) => {
-          result.forEach(
-            (field) => field.status === "rejected" && errors.push(field.reason)
-          );
+    const promise = new Promise<void>((resolve, reject) => {
+      Promise.allSettled(resolved).then((result) => {
+        result.forEach((field) => field.status === "rejected" && errors.push(field.reason));
 
-          if (errors.length === 0) {
-            dispatch({ status: "valid" });
-            resolve();
-          } else {
-            const state = { status: "invalid", errors };
-            dispatch(state);
-            reject(state);
-          }
-        })
-        .catch(() => {});
+        if (errors.length === 0) {
+          dispatch({ status: "valid" });
+          resolve();
+        } else {
+          const state = { status: "invalid", errors };
+          dispatch(state);
+          reject(state);
+        }
+      });
     });
+    promise.catch(() => {});
+
+    return promise;
   };
 
   return { validate, subscribe };
